@@ -1,0 +1,16 @@
+{
+    "name": "masnathan/object",
+    "description": "Super Object that can handle everything you throw at him... or almost everything.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "André Filipe",
+            "email": "andre.r.flip@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MASNathan\\": "src/"
+        }
+    }
+}
