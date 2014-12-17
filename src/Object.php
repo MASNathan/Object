@@ -11,7 +11,7 @@ namespace MASNathan;
  * @todo  add (array) casting hendler, check ArrayObject
  */
 class Object
-    implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
+    implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable
 {
 
     protected $data;
@@ -81,12 +81,11 @@ class Object
 
     /**
      * Serializes the object to a value that can be serialized natively by json_encode().
-     * @overrides \JsonSerializable::jsonSerialize
-     * @return \StdClass Returns data which can be serialized by json_encode(), which is a value of any type other than a resource.
+     * @return string
      */
-    public function jsonSerialize()
+    public function toJson()
     {
-        return $this->data;
+        return json_encode($this->data);
     }
 
     /**
