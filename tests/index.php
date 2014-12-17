@@ -26,5 +26,9 @@ $x->tests->test_p4 = 4;
 $obj = new Object($x);
 
 echo '<pre>';
+$c = 1;
+foreach ($obj->getTests() as $key => $value) {
+	var_dump($key, $value, $c++);
+}
 
-var_dump($obj);
+//var_dump($obj);

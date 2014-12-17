@@ -107,4 +107,15 @@ class ObjectTest extends PHPUnit_Framework_TestCase
         $jsonUnserializedObjectArray = json_decode($jsonSerializedObject, true);
         $this->assertEquals($this->mockArray, $jsonUnserializedObjectArray);
     }
+
+    /**
+     * @depends testInitObject
+     */
+    public function testGetIterator($obj)
+    {
+        $c = 1;
+        foreach ($obj->getTests() as $key => $value) {
+            $this->assertEquals($c++, $value);
+        }
+    }
 }

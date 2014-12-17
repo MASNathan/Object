@@ -110,6 +110,15 @@ class Object
         $this->data = unserialize($serializedData);
     }
 
+    /**
+     * Returns an external iterator
+     * @overrides \IteratorAggregate::getIterator
+     * @return \ArrayIterator
+     */
+    public function getIterator() {
+        return new \ArrayIterator($this->data);
+    }
+    
     public function offsetSet($offset, $value)
     {
         if (!is_null($offset)) {
@@ -168,7 +177,4 @@ class Object
         return (array) $this->data;
     }
 
-    public function getIterator() {
-        return new ArrayIterator($this->data);
-    }
 }
