@@ -2,14 +2,16 @@
 
 namespace MASNathan;
 
+//phpunit --bootstrap vendor/autoload.php tests/ObjectTest
+
 /**
  * @todo  add events -> onChange() every time something is setted
  * @todo  add events -> on[Property]Change() every time the property is setted
  * @todo  add clone function
  * @todo  add (array) casting hendler, check ArrayObject
  */
-class Object 
-    implements \JsonSerializable, \Serializable, \arrayaccess, \Iterator, \Countable
+class Object
+    implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
 {
 
     protected $data;
@@ -18,7 +20,7 @@ class Object
     {
         $this->data = new \StdClass;
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
+            if (is_array($value) || (is_object($value) && get_class($value) == 'stdClass')) {
                 $value = new self($value);
             }
 
@@ -77,19 +79,35 @@ class Object
         
     }
 
+    /**
+     * Serializes the object to a value that can be serialized natively by json_encode().
+     * @overrides \JsonSerializable::jsonSerialize
+     * @return \StdClass Returns data which can be serialized by json_encode(), which is a value of any type other than a resource.
+     */
     public function jsonSerialize()
     {
         return $this->data;
     }
 
+    /**
+     * Should return the string representation of the object
+     * @overrides \Serializable::serialize
+     * @return string Returns the string representation of the object or NULL
+     */
     public function serialize()
     {
         return serialize($this->data);
     }
 
-    public function unserialize($data)
+    /**
+     * Called during unserialization of the object
+     * @overrides \Serializable::unserialize
+     * @param  string $serializedData The string representation of the object
+     * @return null The return value from this method is ignored.
+     */
+    public function unserialize($serializedData)
     {
-        $this->data = unserialize($data);
+        $this->data = unserialize($serializedData);
     }
 
     public function offsetSet($offset, $value)
@@ -148,5 +166,9 @@ class Object
     public function toArray()
     {
         return (array) $this->data;
+    }
+
+    public function getIterator() {
+        return new ArrayIterator($this->data);
     }
 }
