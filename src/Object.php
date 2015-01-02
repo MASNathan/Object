@@ -69,6 +69,11 @@ class Object
         }
         // Returns boolean e.g.: isActive(), isVisible()
         if (strpos($alias, 'is') === 0 && !empty($key)) {
+            $value = reset($args);
+            // e.g.: isRole('admin'), isEncoding('base64')
+            if ($value) {
+                return isset($this->data->$key) ? $this->data->$key == $value : false;
+            }
             return isset($this->data->$key) ? (bool) $this->data->$key : false;
         }
         // If the called function is not a set/get/is kind of thing,
