@@ -53,7 +53,7 @@ class Object
         if (strpos($alias, 'set') === 0 && !empty($key)) {
             $value = reset($args);
 
-            if (is_array($value)) {
+            if (is_array($value) || is_object($value)) {
                 $value = new self($value);
             }
 
