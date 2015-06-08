@@ -10,8 +10,7 @@ namespace MASNathan;
  * @todo  add clone function
  * @todo  add (array) casting hendler, check ArrayObject
  */
-class Object
-    implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
+class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
 {
 
     protected $data;
@@ -70,7 +69,7 @@ class Object
         // Returns boolean e.g.: isActive(), isVisible()
         if (strpos($alias, 'is') === 0 && !empty($key)) {
             $value = reset($args);
-            // e.g.: isRole('admin'), isEncoding('base64')
+            // If there is an argument setted, we check the value agains the argument e.g.: isRole('admin'), isEncoding('base64')
             if ($value) {
                 return isset($this->data->$key) ? $this->data->$key == $value : false;
             }
