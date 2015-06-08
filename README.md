@@ -2,9 +2,9 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/masnathan/object.svg?style=flat-square)](https://packagist.org/packages/masnathan/object)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/thephpmasnathan/object/master.svg?style=flat-square)](https://travis-ci.org/thephpmasnathan/object)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/thephpmasnathan/object.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpmasnathan/object/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/thephpmasnathan/object.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpmasnathan/object)
+[![Build Status](https://img.shields.io/travis/masnathan/object/master.svg?style=flat-square)](https://travis-ci.org/masnathan/object)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/masnathan/object.svg?style=flat-square)](https://scrutinizer-ci.com/g/masnathan/object/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/masnathan/object.svg?style=flat-square)](https://scrutinizer-ci.com/g/masnathan/object)
 [![Total Downloads](https://img.shields.io/packagist/dt/masnathan/object.svg?style=flat-square)](https://packagist.org/packages/masnathan/object)
 
 Super Object that can handle everything you throw at him...
