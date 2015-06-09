@@ -19,7 +19,8 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
     {
         $this->data = new \StdClass;
         foreach ($data as $key => $value) {
-            if (is_array($value) || (is_object($value) && get_class($value) == 'stdClass')) {
+            // If a child is an associative array or an stdClass we convert it as well
+            if ((is_array($value) && (bool) count(array_filter(array_keys($value), 'is_string'))) || (is_object($value) && get_class($value) == 'stdClass')) {
                 $value = new self($value);
             }
 
@@ -119,7 +120,8 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
      * @overrides \IteratorAggregate::getIterator
      * @return \ArrayIterator
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \ArrayIterator($this->data);
     }
     
@@ -155,12 +157,12 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         return \current($this->data);
     }
   
-    public function key() 
+    public function key()
     {
         return \key($this->data);
     }
   
-    public function next() 
+    public function next()
     {
         return \next($this->data);
     }
@@ -176,9 +178,31 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         return count($this->data);
     }
 
-    public function toArray()
+    /**
+     * Recursively converts all the Object instances to array
+     * @return array
+     */
+    public function toArray($convertRecursively = true)
     {
-        return (array) $this->data;
+        if ($convertRecursively) {
+            // We use the json serializer as help to recursively convert the Object instances
+            return json_decode(json_encode($this), true);
+        } else {
+            return (array) $this->data;
+        }
     }
 
+    /**
+     * Recursively converts all the Object instances to \stdClass instances
+     * @return \stdClass
+     */
+    public function toObject($convertRecursively = true)
+    {
+        if ($convertRecursively) {
+            // We use the json serializer as help to recursively convert the Object instances
+            return json_decode(json_encode($this));
+        } else {
+            return $this->data;
+        }
+    }
 }
