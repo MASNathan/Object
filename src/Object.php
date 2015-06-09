@@ -12,7 +12,10 @@ namespace MASNathan;
  */
 class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
 {
-
+    /**
+     * Data holder
+     * @var \StdClass
+     */
     protected $data;
 
     public function __construct($data = array())
@@ -30,7 +33,16 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
 
     public function __get($key)
     {
-        return $this->data->$key;
+        return $this->get($key);
+    }
+
+    public function get($key)
+    {
+        if (isset($this->data->$key)) {
+            return $this->data->$key;
+        }
+
+        return null;
     }
 
     public function __set($key, $value)
@@ -46,7 +58,7 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         
         // Returns a value from a property e.g.: $object->getProperty() -> returns 'value';
         if (strpos($alias, 'get') === 0 && !empty($key)) {
-            return isset($this->data->$key) ? $this->data->$key : null;
+            return $this->get($key);
         }
         // Sets a value to a property and returns it'self e.g.: $object->setProperty('value') -> returns Object class
         if (strpos($alias, 'set') === 0 && !empty($key)) {
@@ -123,26 +135,52 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         return new \ArrayIterator($this->data);
     }
     
+    /**
+     * Assign a value to the specified offset
+     * @overrides \ArrayAccess::offsetSet
+     * @param  mixed $offset The offset to assign the value to
+     * @param  mixed $value  The value to set
+     * @return void
+     */
     public function offsetSet($offset, $value)
     {
-        if (!is_null($offset)) {
-            $this->data->$offset = $value;
+        if (is_null($offset)) {
+            $offset = $this->count();
         }
+        $this->data->$offset = $value;
     }
-
+    
+    /**
+     * Checks if an offset exists
+     * @overrides \ArrayAccess::offsetExists
+     * @param  mixed $offset An offset to check for
+     * @return boolean Returns TRUE on success or FALSE on failure
+     */
     public function offsetExists($offset)
     {
         return isset($this->data->$offset);
     }
+    
+    /**
+     * Retrives an offset value
+     * @overrides \ArrayAccess::offsetGet
+     * @param  mixed $offset The offset to retrieve
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
+    }
 
+    /**
+     * Unsets an offset
+     * @overrides \ArrayAccess::offsetUnset
+     * @param  mixed $offset The offset to unset
+     * @return void
+     */
     public function offsetUnset($offset)
     {
         unset($this->data->$offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        return isset($this->data->$offset) ? $this->data->$offset : null;
     }
 
     public function rewind()

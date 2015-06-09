@@ -15,7 +15,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->mockObject = new \stdClass();
+        $this->mockObject = new \StdClass();
         $this->mockObject->name = 'Test';
         $this->mockObject->last_name = 'Dummy';
         $this->mockObject->role = 'tester';
@@ -24,7 +24,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         //Test numeric indexes
         $this->mockObject->numeric = array('1st', '2nd', '3rd');
         // Test Childs
-        $this->mockObject->tests = new \stdClass();
+        $this->mockObject->tests = new \StdClass();
         $this->mockObject->tests->test_p1 = 1;
         $this->mockObject->tests->test_p2 = 2;
         $this->mockObject->tests->test_p3 = 3;
@@ -41,7 +41,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     {
         $obj = new Object();
         $this->assertEquals(array(), $obj->toArray());
-        $this->assertEquals(new \stdClass, $obj->toObject());
+        $this->assertEquals(new \StdClass, $obj->toObject());
         
         return $obj;
     }
@@ -78,6 +78,21 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($obj->tests->test_p2, $this->mockObject->tests->test_p2);
         $this->assertEquals($obj->tests->test_p3, $this->mockObject->tests->test_p3);
         $this->assertEquals($obj->tests->test_p4, $this->mockObject->tests->test_p4);
+    }
+
+    /**
+     * @covers ::get
+     * @depends testInitObject
+     */
+    public function testGet(Object $obj)
+    {
+        $this->assertNull($obj->get('null_result'));
+        $this->assertEquals($obj->get('name'), $this->mockObject->name);
+        $this->assertEquals($obj->get('last_name'), $this->mockObject->last_name);
+        $this->assertEquals($obj->get('tests')->get('test_p1'), $this->mockObject->tests->test_p1);
+        $this->assertEquals($obj->get('tests')->get('test_p2'), $this->mockObject->tests->test_p2);
+        $this->assertEquals($obj->get('tests')->get('test_p3'), $this->mockObject->tests->test_p3);
+        $this->assertEquals($obj->get('tests')->get('test_p4'), $this->mockObject->tests->test_p4);
     }
 
     public function __setDataProvider()
@@ -295,5 +310,72 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $tempArray = $this->mockArray;
         $tempArray['tests'] = new Object($this->mockArray['tests']);
         $this->assertEquals($tempArray, $obj->toArray(false));
+    }
+
+    /**
+     * @covers ::offsetSet
+     */
+    public function testOffsetSet()
+    {
+        $obj = new Object();
+        $obj[] = 'Primeiro';
+        $obj[2] = 'Segundo';
+        $obj['3'] = 'Terceiro';
+        $obj['four'] = 'Quarto';
+
+        $this->assertEquals($obj->get(0), 'Primeiro');
+        $this->assertEquals($obj->get(2), 'Segundo');
+        $this->assertEquals($obj->get(3), 'Terceiro');
+        $this->assertEquals($obj->getFour(), 'Quarto');
+        return $obj;
+    }
+
+    /**
+     * @covers ::offsetExists
+     * @depends testOffsetSet
+     */
+    public function testOffsetExists(Object $obj)
+    {
+        $this->assertTrue(isset($obj[0]));
+        $this->assertTrue(isset($obj[2]));
+        $this->assertTrue(isset($obj[3]));
+        $this->assertTrue(isset($obj['four']));
+        $this->assertFalse(isset($obj['bananas']));
+        $this->assertFalse(isset($obj['potatos']));
+        $this->assertFalse(isset($obj['parent']['child']));
+        return $obj;
+    }
+
+    /**
+     * @covers ::offsetGet
+     * @depends testOffsetSet
+     */
+    public function testOffsetGet(Object $obj)
+    {
+        $this->assertEquals($obj[0], 'Primeiro');
+        $this->assertEquals($obj[2], 'Segundo');
+        $this->assertEquals($obj[3], 'Terceiro');
+        $this->assertEquals($obj['four'], 'Quarto');
+        $this->assertNull($obj['bananas']);
+        $this->assertNull($obj['potatos']);
+        $this->assertNull($obj['parent']['child']);
+        return $obj;
+    }
+
+    /**
+     * @covers ::offsetUnset
+     * @depends testOffsetExists
+     */
+    public function testOffsetUnset(Object $obj)
+    {
+        unset($obj[0]);
+        unset($obj[2]);
+        unset($obj[3]);
+        unset($obj['four']);
+
+        $this->assertFalse(isset($obj[0]));
+        $this->assertFalse(isset($obj[2]));
+        $this->assertFalse(isset($obj[3]));
+        $this->assertFalse(isset($obj['four']));
     }
 }
