@@ -15,21 +15,12 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->mockArray = array();
-        $this->mockArray['name'] = 'Test';
-        $this->mockArray['last_name'] = 'Dummy';
-        //Test numeric indexes
-        $this->mockArray['numeric'] = array('1st', '2nd', '3rd');
-        // Test Childs
-        $this->mockArray['tests'] = array();
-        $this->mockArray['tests']['test_p1'] = 1;
-        $this->mockArray['tests']['test_p2'] = 2;
-        $this->mockArray['tests']['test_p3'] = 3;
-        $this->mockArray['tests']['test_p4'] = 4;
-
         $this->mockObject = new \stdClass();
         $this->mockObject->name = 'Test';
         $this->mockObject->last_name = 'Dummy';
+        $this->mockObject->role = 'tester';
+        $this->mockObject->active = true;
+        $this->mockObject->tired = false;
         //Test numeric indexes
         $this->mockObject->numeric = array('1st', '2nd', '3rd');
         // Test Childs
@@ -38,6 +29,9 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->mockObject->tests->test_p2 = 2;
         $this->mockObject->tests->test_p3 = 3;
         $this->mockObject->tests->test_p4 = 4;
+
+        $this->mockArray = (array) $this->mockObject;
+        $this->mockArray['tests'] = (array) $this->mockObject->tests;
     }
 
     /**
@@ -86,6 +80,36 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($obj->tests->test_p4, $this->mockObject->tests->test_p4);
     }
 
+    public function __setDataProvider()
+    {
+        $obj = new Object();
+        return array(
+            array($obj, 'alias', 'value'),
+            array($obj, 'number', 1),
+            array($obj, 'array_data', array(1, 2, 3)),
+            array($obj, 'array_assoc', array('a' => 1, 'b' => 2, 'c' => 3)),
+            array($obj, 'mock_array', $this->mockArray),
+            array($obj, 'mock_object', $this->mockObject),
+        );
+    }
+    /**
+     * @covers ::__set
+     * @dataProvider __setDataProvider
+     */
+    public function testMagicSet(Object $obj, $alias, $value)
+    {
+        $obj->$alias = $value;
+        if (is_object($obj->$alias) && get_class($obj->$alias) == 'MASNathan\\Object') {
+            if (is_array($value)) {
+                $this->assertEquals($obj->$alias->toArray(), $value);
+            } elseif (is_object($value)) {
+                $this->assertEquals($obj->$alias->toObject(), $value);
+            }
+        } else {
+            $this->assertEquals($obj->$alias, $value);
+        }
+    }
+
     /**
      * @covers ::__call
      * @depends testInitObject
@@ -99,7 +123,103 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($obj->getTests()->getTestP2(), $this->mockObject->tests->test_p2);
         $this->assertEquals($obj->getTests()->getTestP3(), $this->mockObject->tests->test_p3);
         $this->assertEquals($obj->getTests()->getTestP4(), $this->mockObject->tests->test_p4);
+        $obj = new Object();
+        $obj->super_test = 'This should be ok.';
+        $this->assertEquals($obj->getSuperTest(), 'This should be ok.');
     }
+
+    /**
+     * @covers ::__call
+     */
+    public function testObjectAccessSet()
+    {
+        $obj = new Object();
+        $obj->setName('Maria');
+        $this->assertEquals($obj->getName(), 'Maria');
+        $obj->setLastName('Amélia');
+        $this->assertEquals($obj->getLastName(), 'Amélia');
+        $obj->setDetails(array(
+            'age' => 22,
+            'profession' => 'Developer',
+            'web_site' => 'http://masnathan.com',
+        ));
+        $this->assertInstanceOf('MASNathan\Object', $obj->getDetails());
+        $this->assertEquals($obj->getDetails()->getAge(), 22);
+        $obj->getDetails()->setAge(23);
+        $this->assertEquals($obj->getDetails()->getAge(), 23);
+        $this->assertEquals($obj->getDetails()->getProfession(), 'Developer');
+        $obj->getDetails()->setProfession('Ruler of the world');
+        $this->assertEquals($obj->getDetails()->getProfession(), 'Ruler of the world');
+        $this->assertEquals($obj->getDetails()->getWebSite(), 'http://masnathan.com');
+        $obj->getDetails()->setWebSite('https://github.com/masnathan/object');
+        $this->assertEquals($obj->getDetails()->getWebSite(), 'https://github.com/masnathan/object');
+    }
+
+    /**
+     * @covers ::__call
+     * @depends testInitObject
+     */
+    public function testObjectAccessUnset(Object $obj)
+    {
+        $obj->property = 'value';
+        $obj->super_property = 'SUPER value';
+        $obj->setVisible(false);
+        $obj->setTested(true);
+        
+        $this->assertEquals($obj->getProperty(), 'value');
+        $this->assertEquals($obj->getSuperProperty(), 'SUPER value');
+        $this->assertEquals($obj->getVisible(), false);
+        $this->assertEquals($obj->getTested(), true);
+
+        $obj->unsetProperty();
+        $obj->unsetSuperProperty();
+        $obj->unsetVisible();
+        $obj->unsetTested();
+
+        $this->assertEquals($obj->toObject(), $this->mockObject);
+        $this->assertEquals($obj->toArray(), $this->mockArray);
+    }
+
+    /**
+     * @covers ::__call
+     * @depends testInitObject
+     */
+    public function testObjectAccessIs(Object $obj)
+    {
+        $this->mockObject->role = 'tester';
+        $this->mockObject->active = true;
+        $this->mockObject->tired = false;
+        
+        $this->assertTrue($obj->isName('Test'));
+        $this->assertTrue($obj->isName());
+        $this->assertFalse($obj->isName('Maria'));
+        $this->assertTrue($obj->isRole('tester'));
+        $this->assertTrue($obj->isRole());
+        $this->assertFalse($obj->isRole('developer'));
+        $this->assertTrue($obj->isActive());
+        $this->assertFalse($obj->isActive('boom'));
+        $this->assertFalse($obj->isTired());
+    }
+
+    /**
+     * @covers ::__call
+     * @depends testInitObject
+     */
+    public function testObjectAccessCallable()
+    {
+        $obj = new Object();
+        $obj->foo = function ($a, $b) {
+            return $a + $b;
+        };
+        $obj->bar = function ($a, $b) {
+            return $a - $b;
+        };
+
+        $this->assertEquals($obj->foo(6, 4), 10);
+        $this->assertEquals($obj->bar(6, 4), 2);
+        $this->assertEquals($obj->doNothing(), null);
+    }
+
 
     /**
      * @depends testInitObject
@@ -116,7 +236,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @depends testSerialize
      * @depends testInitObject
      */
-    public function testUnserialize($serializedData, $obj)
+    public function testUnserialize($serializedData, Object $obj)
     {
         $unserializedObject = unserialize($serializedData);
         $this->assertEquals($unserializedObject, $obj);
@@ -127,7 +247,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testInitObject
      */
-    public function testJsonSerialize($obj)
+    public function testJsonSerialize(Object $obj)
     {
         $jsonSerializedObject = json_encode($obj);
         $this->assertNotNull($jsonSerializedObject);
@@ -138,11 +258,42 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testInitObject
      */
-    public function testGetIterator($obj)
+    public function testGetIterator(Object $obj)
     {
         $c = 1;
         foreach ($obj->getTests() as $key => $value) {
             $this->assertEquals($c++, $value);
         }
+    }
+
+    /**
+     * @depends testInitArray
+     */
+    public function testCount(Object $obj)
+    {
+        $this->assertEquals(count($this->mockArray), $obj->count());
+        $this->assertEquals(count($this->mockArray['tests']), $obj->getTests()->count());
+    }
+
+    /**
+     * @depends testInitObject
+     */
+    public function testToObject(Object $obj)
+    {
+        $this->assertEquals($this->mockObject, $obj->toObject());
+        $tempObject = clone $this->mockObject;
+        $tempObject->tests = new Object($this->mockObject->tests);
+        $this->assertEquals($tempObject, $obj->toObject(false));
+    }
+
+    /**
+     * @depends testInitArray
+     */
+    public function testToArray(Object $obj)
+    {
+        $this->assertEquals($this->mockArray, $obj->toArray());
+        $tempArray = $this->mockArray;
+        $tempArray['tests'] = new Object($this->mockArray['tests']);
+        $this->assertEquals($tempArray, $obj->toArray(false));
     }
 }

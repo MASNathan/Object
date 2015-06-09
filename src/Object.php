@@ -43,7 +43,6 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         preg_match_all('/[A-Z][^A-Z]*/', $alias, $parts);
         
         $key = strtolower(implode('_', $parts[0]));
-
         
         // Returns a value from a property e.g.: $object->getProperty() -> returns 'value';
         if (strpos($alias, 'get') === 0 && !empty($key)) {
@@ -72,16 +71,15 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
             $value = reset($args);
             // If there is an argument setted, we check the value agains the argument e.g.: isRole('admin'), isEncoding('base64')
             if ($value) {
-                return isset($this->data->$key) ? $this->data->$key == $value : false;
+                return isset($this->data->$key) ? $this->data->$key === $value : false;
             }
             return isset($this->data->$key) ? (bool) $this->data->$key : false;
         }
-        // If the called function is not a set/get/is kind of thing,
+        // If the called function is not a set/get/unset/is kind of thing,
         // we check if its callable and return it's execution result
         if (isset($this->data->$alias) && is_callable($this->data->$alias)) {
             return call_user_func_array($this->data->$alias, $args);
         }
-        
     }
 
     /**
@@ -173,9 +171,13 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         return ($key !== null && $key !== false);
     }
 
+    /**
+     * Returns the number of elements in the object
+     * @return integer
+     */
     public function count()
     {
-        return count($this->data);
+        return count((array) $this->data);
     }
 
     /**
