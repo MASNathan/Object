@@ -2,13 +2,11 @@
 
 namespace MASNathan;
 
-//phpunit --bootstrap vendor/autoload.php tests/ObjectTest
-
 /**
  * @todo  add events -> onChange() every time something is setted
  * @todo  add events -> on[Property]Change() every time the property is setted
  * @todo  add clone function
- * @todo  add (array) casting hendler, check ArrayObject
+ * @todo  add (array) casting handler, check ArrayObject
  */
 class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
 {
@@ -18,6 +16,10 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
      */
     protected $data;
 
+    /**
+     * Where the magic happens
+     * @param array $data Data to handle
+     */
     public function __construct($data = array())
     {
         $this->data = new \StdClass;
@@ -31,11 +33,21 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         }
     }
 
+    /**
+     * Returns a value by it's key if any
+     * @param  string $key Key
+     * @return mixed
+     */
     public function __get($key)
     {
         return $this->get($key);
     }
 
+    /**
+     * Returns a value by it's key if any
+     * @param  string $key Key
+     * @return mixed
+     */
     public function get($key)
     {
         if (isset($this->data->$key)) {
@@ -45,11 +57,33 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         return null;
     }
 
+    /**
+     * Sets a value to the requested key
+     * @param string $key   Key
+     * @param mixed  $value Value
+     */
     public function __set($key, $value)
     {
-        $this->data->$key = $value;
+        $this->set($key, $value);
     }
 
+    /**
+     * Sets a value to the requested key
+     * @param string $key   Key
+     * @param mixed  $value Value
+     */
+    public function set($key, $value)
+    {
+        $this->data->$key = $value;
+        return $this;
+    }
+
+    /**
+     * Handles the method requests
+     * @param  string $alias Method alias
+     * @param  array  $args  Arguments
+     * @return mixed
+     */
     public function __call($alias, array $args = array())
     {
         preg_match_all('/[A-Z][^A-Z]*/', $alias, $parts);
@@ -68,13 +102,12 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
                 $value = new self($value);
             }
 
-            $this->data->$key = $value;
-            return $this;
+            return $this->set($key, $value);
         }
         // Unsets a property if it's setted
         if (strpos($alias, 'unset') === 0 && !empty($key)) {
-            if (isset($this->data->$key)) {
-                unset($this->data->$key);
+            if ($this->offsetExists($key)) {
+                $this->offsetUnset($key);
             }
             return $this;
         }
@@ -83,13 +116,13 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
             $value = reset($args);
             // If there is an argument setted, we check the value agains the argument e.g.: isRole('admin'), isEncoding('base64')
             if ($value) {
-                return isset($this->data->$key) ? $this->data->$key === $value : false;
+                return $this->offsetExists($key) ? $this->get($key) === $value : false;
             }
-            return isset($this->data->$key) ? (bool) $this->data->$key : false;
+            return $this->offsetExists($key) ? (bool) $this->get($key) : false;
         }
         // If the called function is not a set/get/unset/is kind of thing,
         // we check if its callable and return it's execution result
-        if (isset($this->data->$alias) && is_callable($this->data->$alias)) {
+        if ($this->offsetExists($alias) && is_callable($this->data->$alias)) {
             return call_user_func_array($this->data->$alias, $args);
         }
     }
@@ -147,7 +180,7 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         if (is_null($offset)) {
             $offset = $this->count();
         }
-        $this->data->$offset = $value;
+        $this->set($offset, $value);
     }
     
     /**
@@ -181,32 +214,6 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
     public function offsetUnset($offset)
     {
         unset($this->data->$offset);
-    }
-
-    public function rewind()
-    {
-        return \reset($this->data);
-    }
-  
-    public function current()
-    {
-        return \current($this->data);
-    }
-  
-    public function key()
-    {
-        return \key($this->data);
-    }
-  
-    public function next()
-    {
-        return \next($this->data);
-    }
-  
-    public function valid()
-    {
-        $key = key($this->data);
-        return ($key !== null && $key !== false);
     }
 
     /**

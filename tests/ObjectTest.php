@@ -95,7 +95,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($obj->get('tests')->get('test_p4'), $this->mockObject->tests->test_p4);
     }
 
-    public function __setDataProvider()
+    public function setProvider()
     {
         $obj = new Object();
         return array(
@@ -107,9 +107,10 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
             array($obj, 'mock_object', $this->mockObject),
         );
     }
+
     /**
      * @covers ::__set
-     * @dataProvider __setDataProvider
+     * @dataProvider setProvider
      */
     public function testMagicSet(Object $obj, $alias, $value)
     {
@@ -122,6 +123,24 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
             }
         } else {
             $this->assertEquals($obj->$alias, $value);
+        }
+    }
+
+    /**
+     * @covers ::set
+     * @dataProvider setProvider
+     */
+    public function testSet(Object $obj, $alias, $value)
+    {
+        $obj->set($alias, $value);
+        if (is_object($obj->$alias) && get_class($obj->$alias) == 'MASNathan\\Object') {
+            if (is_array($value)) {
+                $this->assertEquals($obj->get($alias)->toArray(), $value);
+            } elseif (is_object($value)) {
+                $this->assertEquals($obj->get($alias)->toObject(), $value);
+            }
+        } else {
+            $this->assertEquals($obj->get($alias), $value);
         }
     }
 
@@ -287,7 +306,9 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     public function testCount(Object $obj)
     {
         $this->assertEquals(count($this->mockArray), $obj->count());
+        $this->assertEquals(count($this->mockArray), count($obj));
         $this->assertEquals(count($this->mockArray['tests']), $obj->getTests()->count());
+        $this->assertEquals(count($this->mockArray['tests']), count($obj->getTests()));
     }
 
     /**
