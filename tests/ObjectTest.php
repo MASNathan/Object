@@ -1,77 +1,104 @@
 <?php
 
+namespace MASNathan\Test;
+
 use MASNathan\Object;
 
-class ObjectTest extends PHPUnit_Framework_TestCase
+/**
+ * @coversDefaultClass \MASNathan\Object
+ */
+class ObjectTest extends \PHPUnit_Framework_TestCase
 {
 
-    protected $mockArray = [
-        'name' => 'Test',
-        'last_name' => 'Dummy',
-        'tests' => [
-            'test_p1' => 1,
-            'test_p2' => 2,
-            'test_p3' => 3,
-            'test_p4' => 4,
-        ]
-    ];
+    protected $mockArray;
+    protected $mockObject;
 
+    protected function setUp()
+    {
+        $this->mockArray = array();
+        $this->mockArray['name'] = 'Test';
+        $this->mockArray['last_name'] = 'Dummy';
+        //Test numeric indexes
+        $this->mockArray['numeric'] = array('1st', '2nd', '3rd');
+        // Test Childs
+        $this->mockArray['tests'] = array();
+        $this->mockArray['tests']['test_p1'] = 1;
+        $this->mockArray['tests']['test_p2'] = 2;
+        $this->mockArray['tests']['test_p3'] = 3;
+        $this->mockArray['tests']['test_p4'] = 4;
+
+        $this->mockObject = new \stdClass();
+        $this->mockObject->name = 'Test';
+        $this->mockObject->last_name = 'Dummy';
+        //Test numeric indexes
+        $this->mockObject->numeric = array('1st', '2nd', '3rd');
+        // Test Childs
+        $this->mockObject->tests = new \stdClass();
+        $this->mockObject->tests->test_p1 = 1;
+        $this->mockObject->tests->test_p2 = 2;
+        $this->mockObject->tests->test_p3 = 3;
+        $this->mockObject->tests->test_p4 = 4;
+    }
+
+    /**
+     * @covers ::__construct
+     */
     public function testInitEmpty()
     {
-        $this->markTestIncomplete('This test has not been implemented yet.');
-
         $obj = new Object();
-        $this->assertEquals((array) $obj, []);
+        $this->assertEquals(array(), $obj->toArray());
+        $this->assertEquals(new \stdClass, $obj->toObject());
         
         return $obj;
     }
 
+    /**
+     * @covers ::__construct
+     */
     public function testInitArray()
     {
         $obj = new Object($this->mockArray);
-        //$this->assertEquals($x, $obj->toArray());
-
-        return $obj;
-    }
-
-    public function testInitObject()
-    {
-        $x = new stdClass();
-        $x->name = 'Test';
-        $x->last_name = 'Dummy';
-        $x->tests = new stdClass();
-        $x->tests->test_p1 = 1;
-        $x->tests->test_p2 = 2;
-        $x->tests->test_p3 = 3;
-        $x->tests->test_p4 = 4;
-
-        $obj = new Object($x);
-        //$this->assertNotEmpty((array) $obj);
-
+        $this->assertEquals($this->mockArray, $obj->toArray());
         return $obj;
     }
 
     /**
-     * @depends testInitArray
+     * @covers ::__construct
+     */
+    public function testInitObject()
+    {
+        $obj = new Object($this->mockObject);
+        $this->assertEquals($this->mockObject, $obj->toObject());
+        return $obj;
+    }
+
+    /**
+     * @covers ::__get
      * @depends testInitObject
      */
-    public function testObjectAccessGet(Object $array, Object $obj)
+    public function testMagicGet(Object $obj)
     {
-        $this->assertEquals($array->getName(), 'Test');
-        $this->assertEquals($array->getLastName(), 'Dummy');
-        $this->assertInstanceOf('MASNathan\Object', $array->getTests());
-        $this->assertEquals($array->getTests()->getTestP1(), 1);
-        $this->assertEquals($array->getTests()->getTestP2(), 2);
-        $this->assertEquals($array->getTests()->getTestP3(), 3);
-        $this->assertEquals($array->getTests()->getTestP4(), 4);
+        $this->assertEquals($obj->name, $this->mockObject->name);
+        $this->assertEquals($obj->last_name, $this->mockObject->last_name);
+        $this->assertEquals($obj->tests->test_p1, $this->mockObject->tests->test_p1);
+        $this->assertEquals($obj->tests->test_p2, $this->mockObject->tests->test_p2);
+        $this->assertEquals($obj->tests->test_p3, $this->mockObject->tests->test_p3);
+        $this->assertEquals($obj->tests->test_p4, $this->mockObject->tests->test_p4);
+    }
 
-        $this->assertEquals($obj->getName(), 'Test');
-        $this->assertEquals($obj->getLastName(), 'Dummy');
+    /**
+     * @covers ::__call
+     * @depends testInitObject
+     */
+    public function testObjectAccessGet(Object $obj)
+    {
+        $this->assertEquals($obj->getName(), $this->mockObject->name);
+        $this->assertEquals($obj->getLastName(), $this->mockObject->last_name);
         $this->assertInstanceOf('MASNathan\Object', $obj->getTests());
-        $this->assertEquals($obj->getTests()->getTestP1(), 1);
-        $this->assertEquals($obj->getTests()->getTestP2(), 2);
-        $this->assertEquals($obj->getTests()->getTestP3(), 3);
-        $this->assertEquals($obj->getTests()->getTestP4(), 4);
+        $this->assertEquals($obj->getTests()->getTestP1(), $this->mockObject->tests->test_p1);
+        $this->assertEquals($obj->getTests()->getTestP2(), $this->mockObject->tests->test_p2);
+        $this->assertEquals($obj->getTests()->getTestP3(), $this->mockObject->tests->test_p3);
+        $this->assertEquals($obj->getTests()->getTestP4(), $this->mockObject->tests->test_p4);
     }
 
     /**
