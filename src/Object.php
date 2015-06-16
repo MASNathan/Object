@@ -24,12 +24,7 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
     {
         $this->data = new \StdClass;
         foreach ($data as $key => $value) {
-            // If a child is an associative array or an stdClass we convert it as well
-            if ((is_array($value) && (bool) count(array_filter(array_keys($value), 'is_string'))) || (is_object($value) && get_class($value) == 'stdClass')) {
-                $value = new self($value);
-            }
-
-            $this->data->$key = $value;
+            $this->set($key, $value);
         }
     }
 
@@ -74,6 +69,11 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
      */
     public function set($key, $value)
     {
+        // If a child is an associative array or an stdClass we convert it as well
+        if ((is_array($value) && (bool) count(array_filter(array_keys($value), 'is_string'))) || (is_object($value) && get_class($value) == 'stdClass')) {
+            $value = new self($value);
+        }
+
         $this->data->$key = $value;
         return $this;
     }
@@ -97,11 +97,6 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         // Sets a value to a property and returns it'self e.g.: $object->setProperty('value') -> returns Object class
         if (strpos($alias, 'set') === 0 && !empty($key)) {
             $value = reset($args);
-
-            if (is_array($value) || is_object($value)) {
-                $value = new self($value);
-            }
-
             return $this->set($key, $value);
         }
         // Unsets a property if it's setted
