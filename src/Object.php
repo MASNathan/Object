@@ -72,6 +72,8 @@ class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializa
         // If a child is an associative array or an stdClass we convert it as well
         if ((is_array($value) && (bool) count(array_filter(array_keys($value), 'is_string'))) || (is_object($value) && get_class($value) == 'stdClass')) {
             $value = new self($value);
+        } elseif (is_array($value) && empty($value)) {
+            $value = new self();
         }
 
         $this->data->$key = $value;
