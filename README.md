@@ -3,10 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/masnathan/object.svg?style=flat-square)](https://packagist.org/packages/masnathan/object)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/MASNathan/Object/master.svg?style=flat-square)](https://travis-ci.org/MASNathan/Object)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/masnathan/object.svg?style=flat-square)](https://scrutinizer-ci.com/g/masnathan/object/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/masnathan/object.svg?style=flat-square)](https://scrutinizer-ci.com/g/masnathan/object)
 [![Total Downloads](https://img.shields.io/packagist/dt/masnathan/object.svg?style=flat-square)](https://packagist.org/packages/masnathan/object)
-[![Support via Gittip](https://img.shields.io/gittip/ReiDuKuduro.svg?style=flat-square)](https://gratipay.com/~ReiDuKuduro/)
 
 Super Object that can handle everything you throw at him...
 
@@ -21,9 +18,9 @@ $ composer require masnathan/object
 ## Usage
 
 ``` php
-use MASNathan\Object;
+use MASNathan\SuperObject;
 
-$object = new Object();
+$object = new SuperObject();
 $object->setMode('live');
 $object->set('mode', 'live');
 $object->mode = 'live';
@@ -58,10 +55,10 @@ $myBigDataArray = array(
 	)
 );
 ```
-Using the ```Object``` class you can acces it's information like this:
+Using the ```SuperObject``` class you can access it's information like this:
 
 ```php
-$object = new Object($myBigDataArray);
+$object = new SuperObject($myBigDataArray);
 
 echo $object->getDetails()->getFirstName(); // 'André'
 $object->getDetails()->isLastName('Roque'); // false
@@ -75,7 +72,7 @@ foreach ($object->getCartItems() as $item) {
 }
 ```
 
-You can also retrive the contents of the Object as an ```array``` or a ```StdClass```:
+You can also retrive the contents of the SuperObject as an ```array``` or a ```StdClass```:
 
 ```php
 $object->toArray(); // array( ... )
