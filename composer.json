@@ -1,48 +1,42 @@
 {
-    "name": "masnathan/object",
-    "description": "Super Object that can handle everything you throw at him... or almost everything.",
-    "keywords": [
-        "object",
-        "data",
-        "handler"
-    ],
-    "homepage": "https://github.com/masnathan/object",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "André Filipe",
-            "email": "andre.r.flip@gmail.com",
-            "homepage": "http://masnathan.com",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php" : ">=5.3.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit" : "4.*",
-        "scrutinizer/ocular": "~1.1"
-    },
-    "autoload": {
-        "psr-4": {
-            "MASNathan\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "MASNathan\\Test\\": "tests"
-        }
-    },
-    "scripts": {
-        "test": "bin/phpunit"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
-        }
-    },
-    "config":
+  "name": "masnathan/object",
+  "description": "Super Object that can handle everything you throw at him... or almost everything.",
+  "keywords": [
+    "object",
+    "data",
+    "handler"
+  ],
+  "homepage": "https://github.com/masnathan/object",
+  "license": "MIT",
+  "authors": [
     {
-        "bin-dir": "bin"
+      "name": "André Filipe",
+      "email": "andre.r.flip@gmail.com",
+      "role": "Developer"
     }
+  ],
+  "require": {
+    "php": "~7.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MASNathan\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MASNathan\\Test\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev"
+    }
+  }
 }

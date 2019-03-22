@@ -8,7 +8,7 @@ namespace MASNathan;
  * @todo  add clone function
  * @todo  add (array) casting handler, check ArrayObject
  */
-class Object implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
+class SuperObject implements \IteratorAggregate, \ArrayAccess, \Countable, \Serializable, \JsonSerializable
 {
     /**
      * Data holder

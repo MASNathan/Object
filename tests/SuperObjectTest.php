@@ -2,18 +2,19 @@
 
 namespace MASNathan\Test;
 
-use MASNathan\Object;
+use MASNathan\SuperObject;
+use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \MASNathan\Object
+ * @coversDefaultClass \MASNathan\SuperObject
  */
-class ObjectTest extends \PHPUnit_Framework_TestCase
+class SuperObjectTest extends TestCase
 {
-
     protected $mockArray;
+
     protected $mockObject;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockObject = new \StdClass();
         $this->mockObject->name = 'Test';
@@ -22,7 +23,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->mockObject->active = true;
         $this->mockObject->tired = false;
         //Test numeric indexes
-        $this->mockObject->numeric = array('1st', '2nd', '3rd');
+        $this->mockObject->numeric = ['1st', '2nd', '3rd'];
         // Test Childs
         $this->mockObject->tests = new \StdClass();
         $this->mockObject->tests->test_p1 = 1;
@@ -30,8 +31,8 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->mockObject->tests->test_p3 = 3;
         $this->mockObject->tests->test_p4 = 4;
 
-        $this->mockArray = (array) $this->mockObject;
-        $this->mockArray['tests'] = (array) $this->mockObject->tests;
+        $this->mockArray = (array)$this->mockObject;
+        $this->mockArray['tests'] = (array)$this->mockObject->tests;
     }
 
     /**
@@ -39,10 +40,10 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testInitEmpty()
     {
-        $obj = new Object();
-        $this->assertEquals(array(), $obj->toArray());
+        $obj = new SuperObject();
+        $this->assertEquals([], $obj->toArray());
         $this->assertEquals(new \StdClass, $obj->toObject());
-        
+
         return $obj;
     }
 
@@ -51,8 +52,9 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testInitArray()
     {
-        $obj = new Object($this->mockArray);
+        $obj = new SuperObject($this->mockArray);
         $this->assertEquals($this->mockArray, $obj->toArray());
+
         return $obj;
     }
 
@@ -61,8 +63,9 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testInitObject()
     {
-        $obj = new Object($this->mockObject);
+        $obj = new SuperObject($this->mockObject);
         $this->assertEquals($this->mockObject, $obj->toObject());
+
         return $obj;
     }
 
@@ -70,7 +73,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::__get
      * @depends testInitObject
      */
-    public function testMagicGet(Object $obj)
+    public function testMagicGet(SuperObject $obj)
     {
         $this->assertEquals($obj->name, $this->mockObject->name);
         $this->assertEquals($obj->last_name, $this->mockObject->last_name);
@@ -84,7 +87,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::get
      * @depends testInitObject
      */
-    public function testGet(Object $obj)
+    public function testGet(SuperObject $obj)
     {
         $this->assertNull($obj->get('null_result'));
         $this->assertEquals($obj->get('name'), $this->mockObject->name);
@@ -97,25 +100,26 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 
     public function setProvider()
     {
-        $obj = new Object();
-        return array(
-            array($obj, 'alias', 'value'),
-            array($obj, 'number', 1),
-            array($obj, 'array_data', array(1, 2, 3)),
-            array($obj, 'array_assoc', array('a' => 1, 'b' => 2, 'c' => 3)),
-            array($obj, 'mock_array', $this->mockArray),
-            array($obj, 'mock_object', $this->mockObject),
-        );
+        $obj = new SuperObject();
+
+        return [
+            [$obj, 'alias', 'value'],
+            [$obj, 'number', 1],
+            [$obj, 'array_data', [1, 2, 3]],
+            [$obj, 'array_assoc', ['a' => 1, 'b' => 2, 'c' => 3]],
+            [$obj, 'mock_array', $this->mockArray],
+            [$obj, 'mock_object', $this->mockObject],
+        ];
     }
 
     /**
      * @covers ::__set
      * @dataProvider setProvider
      */
-    public function testMagicSet(Object $obj, $alias, $value)
+    public function testMagicSet(SuperObject $obj, $alias, $value)
     {
         $obj->$alias = $value;
-        if (is_object($obj->$alias) && get_class($obj->$alias) == 'MASNathan\\Object') {
+        if (is_object($obj->$alias) && get_class($obj->$alias) == 'MASNathan\\SuperObject') {
             if (is_array($value)) {
                 $this->assertEquals($obj->$alias->toArray(), $value);
             } elseif (is_object($value)) {
@@ -130,10 +134,10 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::set
      * @dataProvider setProvider
      */
-    public function testSet(Object $obj, $alias, $value)
+    public function testSet(SuperObject $obj, $alias, $value)
     {
         $obj->set($alias, $value);
-        if (is_object($obj->$alias) && get_class($obj->$alias) == 'MASNathan\\Object') {
+        if (is_object($obj->$alias) && get_class($obj->$alias) == 'MASNathan\\SuperObject') {
             if (is_array($value)) {
                 $this->assertEquals($obj->get($alias)->toArray(), $value);
             } elseif (is_object($value)) {
@@ -148,16 +152,16 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::__call
      * @depends testInitObject
      */
-    public function testObjectAccessGet(Object $obj)
+    public function testObjectAccessGet(SuperObject $obj)
     {
         $this->assertEquals($obj->getName(), $this->mockObject->name);
         $this->assertEquals($obj->getLastName(), $this->mockObject->last_name);
-        $this->assertInstanceOf('MASNathan\Object', $obj->getTests());
+        $this->assertInstanceOf('MASNathan\SuperObject', $obj->getTests());
         $this->assertEquals($obj->getTests()->getTestP1(), $this->mockObject->tests->test_p1);
         $this->assertEquals($obj->getTests()->getTestP2(), $this->mockObject->tests->test_p2);
         $this->assertEquals($obj->getTests()->getTestP3(), $this->mockObject->tests->test_p3);
         $this->assertEquals($obj->getTests()->getTestP4(), $this->mockObject->tests->test_p4);
-        $obj = new Object();
+        $obj = new SuperObject();
         $obj->super_test = 'This should be ok.';
         $this->assertEquals($obj->getSuperTest(), 'This should be ok.');
     }
@@ -167,17 +171,17 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testObjectAccessSet()
     {
-        $obj = new Object();
+        $obj = new SuperObject();
         $obj->setName('Maria');
         $this->assertEquals($obj->getName(), 'Maria');
         $obj->setLastName('Amélia');
         $this->assertEquals($obj->getLastName(), 'Amélia');
-        $obj->setDetails(array(
-            'age' => 22,
+        $obj->setDetails([
+            'age'        => 22,
             'profession' => 'Developer',
-            'web_site' => 'http://masnathan.com',
-        ));
-        $this->assertInstanceOf('MASNathan\Object', $obj->getDetails());
+            'web_site'   => 'http://masnathan.com',
+        ]);
+        $this->assertInstanceOf('MASNathan\SuperObject', $obj->getDetails());
         $this->assertEquals($obj->getDetails()->getAge(), 22);
         $obj->getDetails()->setAge(23);
         $this->assertEquals($obj->getDetails()->getAge(), 23);
@@ -193,13 +197,13 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::__call
      * @depends testInitObject
      */
-    public function testObjectAccessUnset(Object $obj)
+    public function testObjectAccessUnset(SuperObject $obj)
     {
         $obj->property = 'value';
         $obj->super_property = 'SUPER value';
         $obj->setVisible(false);
         $obj->setTested(true);
-        
+
         $this->assertEquals($obj->getProperty(), 'value');
         $this->assertEquals($obj->getSuperProperty(), 'SUPER value');
         $this->assertEquals($obj->getVisible(), false);
@@ -218,12 +222,12 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::__call
      * @depends testInitObject
      */
-    public function testObjectAccessIs(Object $obj)
+    public function testObjectAccessIs(SuperObject $obj)
     {
         $this->mockObject->role = 'tester';
         $this->mockObject->active = true;
         $this->mockObject->tired = false;
-        
+
         $this->assertTrue($obj->isName('Test'));
         $this->assertTrue($obj->isName());
         $this->assertFalse($obj->isName('Maria'));
@@ -241,7 +245,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testObjectAccessCallable()
     {
-        $obj = new Object();
+        $obj = new SuperObject();
         $obj->foo = function ($a, $b) {
             return $a + $b;
         };
@@ -254,7 +258,6 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($obj->doNothing(), null);
     }
 
-
     /**
      * @depends testInitObject
      */
@@ -263,6 +266,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $serializedData = serialize($obj);
 
         $this->assertNotNull($serializedData);
+
         return $serializedData;
     }
 
@@ -270,7 +274,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @depends testSerialize
      * @depends testInitObject
      */
-    public function testUnserialize($serializedData, Object $obj)
+    public function testUnserialize($serializedData, SuperObject $obj)
     {
         $unserializedObject = unserialize($serializedData);
         $this->assertEquals($unserializedObject, $obj);
@@ -281,7 +285,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testInitObject
      */
-    public function testJsonSerialize(Object $obj)
+    public function testJsonSerialize(SuperObject $obj)
     {
         $jsonSerializedObject = json_encode($obj);
         $this->assertNotNull($jsonSerializedObject);
@@ -292,7 +296,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testInitObject
      */
-    public function testGetIterator(Object $obj)
+    public function testGetIterator(SuperObject $obj)
     {
         $c = 1;
         foreach ($obj->getTests() as $key => $value) {
@@ -303,7 +307,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testInitArray
      */
-    public function testCount(Object $obj)
+    public function testCount(SuperObject $obj)
     {
         $this->assertEquals(count($this->mockArray), $obj->count());
         $this->assertEquals(count($this->mockArray), count($obj));
@@ -314,22 +318,22 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testInitObject
      */
-    public function testToObject(Object $obj)
+    public function testToObject(SuperObject $obj)
     {
         $this->assertEquals($this->mockObject, $obj->toObject());
         $tempObject = clone $this->mockObject;
-        $tempObject->tests = new Object($this->mockObject->tests);
+        $tempObject->tests = new SuperObject($this->mockObject->tests);
         $this->assertEquals($tempObject, $obj->toObject(false));
     }
 
     /**
      * @depends testInitArray
      */
-    public function testToArray(Object $obj)
+    public function testToArray(SuperObject $obj)
     {
         $this->assertEquals($this->mockArray, $obj->toArray());
         $tempArray = $this->mockArray;
-        $tempArray['tests'] = new Object($this->mockArray['tests']);
+        $tempArray['tests'] = new SuperObject($this->mockArray['tests']);
         $this->assertEquals($tempArray, $obj->toArray(false));
     }
 
@@ -338,7 +342,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetSet()
     {
-        $obj = new Object();
+        $obj = new SuperObject();
         $obj[] = 'Primeiro';
         $obj[2] = 'Segundo';
         $obj['3'] = 'Terceiro';
@@ -348,6 +352,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($obj->get(2), 'Segundo');
         $this->assertEquals($obj->get(3), 'Terceiro');
         $this->assertEquals($obj->getFour(), 'Quarto');
+
         return $obj;
     }
 
@@ -355,7 +360,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::offsetExists
      * @depends testOffsetSet
      */
-    public function testOffsetExists(Object $obj)
+    public function testOffsetExists(SuperObject $obj)
     {
         $this->assertTrue(isset($obj[0]));
         $this->assertTrue(isset($obj[2]));
@@ -364,6 +369,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(isset($obj['bananas']));
         $this->assertFalse(isset($obj['potatos']));
         $this->assertFalse(isset($obj['parent']['child']));
+
         return $obj;
     }
 
@@ -371,7 +377,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::offsetGet
      * @depends testOffsetSet
      */
-    public function testOffsetGet(Object $obj)
+    public function testOffsetGet(SuperObject $obj)
     {
         $this->assertEquals($obj[0], 'Primeiro');
         $this->assertEquals($obj[2], 'Segundo');
@@ -380,6 +386,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($obj['bananas']);
         $this->assertNull($obj['potatos']);
         $this->assertNull($obj['parent']['child']);
+
         return $obj;
     }
 
@@ -387,7 +394,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      * @covers ::offsetUnset
      * @depends testOffsetExists
      */
-    public function testOffsetUnset(Object $obj)
+    public function testOffsetUnset(SuperObject $obj)
     {
         unset($obj[0]);
         unset($obj[2]);

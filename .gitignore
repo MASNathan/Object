@@ -6,4 +6,5 @@ composer.phar
 build
 docs
 vendor
-bin
+
+.phpunit.result.cache
